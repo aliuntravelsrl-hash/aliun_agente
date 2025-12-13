@@ -1,0 +1,52 @@
+productos-aliun.json
+    {
+        "id": "PROD_H_001",
+        "nombre_producto": "Hotel [Nombre Hotel 1]",
+        "tipo_producto": "Hotel / Alojamiento",
+        "destino": "Punta Cana",
+        "descripcion": "Descripción detallada del hotel. Énfasis en lo que al cliente le importa.",
+        "politica_cancelacion": "Política de cancelación específica del proveedor.",
+        "precio_base": "60000",
+        "etiquetas": "familiar, todo incluido, bajo costo"
+    },
+    {
+        "id": "POL_001",
+        "nombre_producto": "Política de Intermediación de Aliun Travel SRL",
+        "tipo_producto": "Política General",
+        "destino": "General",
+        "descripcion": "Aliun Travel SRL actúa EXCLUSIVAMENTE como intermediario. NO somos el proveedor final. Las políticas dependen del proveedor.",
+        "politica_cancelacion": "N/A",
+        "precio_base": "0",
+        "etiquetas": "legal, rol, intermediario"
+    },
+    {
+        "id": "PROD_H_002",
+        "nombre_producto": "Hotel Boutique [Nombre Hotel 2]",
+        "tipo_producto": "Hotel / Alojamiento",
+        "destino": "Santo Domingo",
+        "descripcion": "Hotel de lujo en el centro histórico. Ideal para parejas y viajes de negocios. Experiencia cultural y gastronómica única.",
+        "politica_cancelacion": "Cancelación gratuita hasta 7 días antes. Después, se aplica un cargo del 50%.",
+        "precio_base": "85000",
+        "etiquetas": "lujo, adultos, cultural, boutique"
+    },
+    {
+        "id": "PROD_E_001",
+        "nombre_producto": "Tour a Isla Saona",
+        "tipo_producto": "Excursión / Tour",
+        "destino": "Punta Cana",
+        "descripcion": "Paseo en catamarán a la paradisíaca Isla Saona. Incluye almuerzo buffet, bebidas nacionales y snorkel en un arrecife natural.",
+        "politica_cancelacion": "Cancelación con reembolso del 100% hasta 48 horas antes del tour.",
+        "precio_base": "9500",
+        "etiquetas": "naturaleza, playa, catamarán, día completo"
+    },
+    {
+        "id": "POL_002",
+        "nombre_producto": "Términos y Condiciones del Servicio",
+        "tipo_producto": "Política General",
+        "destino": "General",
+        "descripcion": "Define los términos de uso del sitio web y los servicios de intermediación de Aliun Travel SRL. Responsabilidades del usuario y de la empresa.",
+        "politica_cancelacion": "N/A",
+        "precio_base": "0",
+        "etiquetas": "legal, servicio, usuario, condiciones"
+    }
+]
