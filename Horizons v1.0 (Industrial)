@@ -1,0 +1,26 @@
+# 📜 Aliun Travel — Horizons v1.0 (Industrial)
+### SSOT: Supabase First | "Primero ver, después evolucionar"
+
+**ESTADO:** Reparación de Visión y Admin 🟢
+**NÚCLEO:** Sincronización Automática de Inventario (114 Hoteles)
+
+## 🏗️ El Molde de Hierro
+El sistema se rige por la estructura de Supabase como Fuente Única de Verdad (SSOT). 
+Cualquier hotel inyectado se alinea automáticamente a la lógica del modelo:
+- **Identidad:** hotel_id (UUID) único y soberano.
+- **Motor de Reservas:** Basado en Swagger Codegen 2.4.50.
+- **Atributos Críticos:** location, stars, status, publish.
+
+## 👁️ Meta Inmediata: Fin de la Ceguera
+El Admin v2.6 DEBE reflejar la totalidad de la data de Supabase para los 114 hoteles. 
+Sin visualización en el Admin, el hotel no existe para la operación comercial ni para los pagos.
+
+## 🏛️ Mando Técnico
+- **Technical Lead:** Ing. ALDO HILARIO
+- **Ing. Forense:** Perplexity
+- **Director de Coherencia:** Gemini
+
+Atentamente,
+Aliun Travel SRL
+Ing. ALDO HILARIO
+Founder & Technical Lead
