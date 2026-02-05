@@ -1,0 +1,88 @@
+# 📜 Horizons — Contratos Oficiales (v2.6 → v3.0)
+
+> Este documento define los **contratos formales** que rigen Horizons (Admin + Frontend).
+> Son **no negociables** y aplican desde v2.6 en producción.
+
+---
+
+## 1️⃣ Contrato de Identidad (Identity Contract)
+
+* `hotel_id` (UUID) es la **clave primaria soberana**.
+* `slug` es derivado, único y canónico.
+* Ningún JOIN crítico se hace por nombre.
+
+**Regla:**
+
+> Si no hay `hotel_id`, no existe hotel.
+
+---
+
+## 2️⃣ Contrato de Habitaciones (Room Contract)
+
+Campos obligatorios:
+
+* `room_id`
+* `hotel_id`
+* `room_type` (normalizado)
+* `capacity_adults`
+* `capacity_children`
+
+**Regla:**
+
+> Un `room_type` debe existir antes de tarifas.
+
+---
+
+## 3️⃣ Contrato de Tarifas (Pricing Contract)
+
+* Tarifas siempre ligadas a:
+
+  * `room_id`
+  * `season_id`
+  * `year`
+
+* Prohibido hardcoding de años.
+
+**Regla:**
+
+> Una tarifa sin temporada es inválida.
+
+---
+
+## 4️⃣ Contrato Multimedia
+
+* Todo asset pertenece a un dominio:
+
+  * hero_video
+  * gallery
+  * rooms
+  * gastronomy
+  * services
+
+* Storage = Supabase
+
+---
+
+## 5️⃣ Contrato de Estados Comerciales
+
+Estados permitidos:
+
+* quotation
+* pending_payment
+* paid
+* cancelled
+* expired
+
+Transiciones explícitas.
+
+---
+
+## 6️⃣ Contrato Realtime
+
+* Admin y Web **no cachean estado crítico**.
+* Supabase Realtime es obligatorio.
+
+---
+
+**Estado:** Activo desde v2.6
+**Extiende:** v3.0
