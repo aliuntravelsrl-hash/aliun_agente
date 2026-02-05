@@ -1,0 +1,433 @@
+Onboarding — Aliun Travel Platform
+
+Bienvenido al ecosistema Aliun Travel.
+
+1. Qué estás viendo
+
+Un Booking Engine industrial con Admin cognitivo en tiempo real.
+# 🧠 Aliun Travel — Architecture Overview
+
+## 1. Principio Rector
+
+**Supabase First**: Supabase es la Fuente Única de Verdad (SSOT). Ninguna lógica crítica vive fuera de la base de datos.
+
+## 2. Capas del Sistema
+
+### Capa de Datos (SSOT)
+
+* Supabase Postgres
+* Realtime
+* Storage (multimedia)
+* RLS (seguridad)
+
+### Capa de Negocio
+
+* Pricing Engine
+* Booking Engine v1.0
+* Reglas de reservas (booking_rules)
+
+### Capa de Automatización
+
+* n8n (ingesta masiva, workflows)
+* SQL idempotente (ON CONFLICT)
+
+### Capa Cognitiva
+
+* MCP Server (Node.js)
+* Data Contracts JSON
+* Generación de documentos (PDF)
+
+### Capa de Presentación
+
+* Web pública (Molde de Hierro – 10 secciones)
+* Admin Industrial v2.6
+
+## 3. Flujo General
+
+Usuario → Web → Booking Engine → Supabase → Realtime → Admin / IA
+
+## 4. No‑Negotiables
+
+* Idempotencia
+* Zero‑Redeploy
+* Realtime <200ms
+* Sin hardcoding
+
+---
+
+**Estado:** Arquitectura estable y escalable
+
+# 👋 Onboarding — Aliun Travel Platform
+
+Bienvenido al ecosistema Aliun Travel.
+
+## 1. Qué estás viendo
+
+Un Booking Engine industrial con Admin cognitivo en tiempo real.
+
+## 2. Conceptos Clave
+
+* **Supabase = Cerebro**
+* **n8n = Músculo**
+* **IA = Sistema Nervioso**
+
+## 3. Dónde empezar
+
+1. Revisa Supabase (tablas y RLS)
+2. Explora Admin v2.6
+3. Observa Realtime en acción
+4. Revisa flujos n8n
+
+## 4. Reglas de Oro
+
+* No romper contratos de datos
+* No duplicar lógica
+* Todo debe ser idempotente
+
+## 5. Cómo contribuir
+
+* Cambios pequeños
+* Validar en Admin
+* Documentar siempre
+
+---
+
+Contacto: Dirección Técnica — Aliun Travel
+# 🖥️ Admin Guide — Aliun Travel
+
+## 1. Dashboard
+
+* KPIs en tiempo real
+* Verificación de unicidad
+* Monitor de ventas
+
+## 2. Hoteles
+
+* Gestión por slug canónico
+* Multimedia por dominio
+* Habitaciones, temporadas y tarifas
+
+## 3. Multimedia
+
+* Video Hero (YouTube)
+* Galería (Lightbox)
+* Storage Supabase
+
+## 4. Ventas y Reservas
+
+* Estados comerciales
+* Pendiente → Pagada → Voucher
+* PDFs automáticos
+
+## 5. Buenas Prácticas
+
+* Guardar cambios explícitamente
+* Verificar estados
+* Usar filtros
+
+---
+
+Admin diseñado para operar sin fricción.
+# 🧬 Aliun Travel — Evolución Lógica v3.0 (Documentación Viva)
+
+> Este documento describe la **evolución cognitiva y técnica** del sistema Aliun Travel.
+> No es un roadmap rígido: es una **documentación viva**, versionada junto al sistema.
+
+---
+
+## 📌 Estado Base (v2.6 — Producción)
+
+**Condición:** Sistema operativo con ventas reales.
+
+Capacidades confirmadas:
+
+* Booking Engine v1.0 certificado
+* Admin Industrial v2.6
+* Realtime Supabase activo
+* Ingesta idempotente (n8n + SQL)
+* Multimedia y ventas en producción
+* Unicidad semántica y relacional verificada
+
+Limitación natural:
+
+* El sistema **informa**, pero aún no **prioriza ni guía**.
+
+---
+
+## 🚀 Salto Conceptual — v3.0
+
+### Definición
+
+**v3.0 = Sistema Cognitivo Operacional**
+
+El objetivo no es agregar features, sino **reducir carga mental humana**.
+
+> En v3.0 el sistema no solo muestra datos:
+> **dice qué hacer ahora y por qué**.
+
+---
+
+## 🧠 Pilar 1 — Dashboard Cognitivo
+
+Evolución:
+
+* v2.6: KPIs descriptivos
+* v3.0: KPIs prescriptivos
+
+Nuevas capacidades:
+
+* Estados operativos globales:
+
+  * Idle
+  * Ingesta
+  * Actividad Comercial
+  * Riesgo
+  * Escala
+
+* Bloque "Acción Recomendada":
+
+  * "Hay 3 reservas pendientes de pago > 24h"
+  * "Hotel con alta demanda sin tarifas futuras"
+
+---
+
+## 🔁 Pilar 2 — Automatización de Cierre
+
+Evolución del pipeline:
+
+v2.6:
+Cotización → Pendiente de Pago → Acción humana
+
+v3.0:
+Cotización → Pago detectado → Voucher → Seguimiento
+
+Automatismos:
+
+* Detección de pago
+* Generación automática de PDF
+* Notificación cliente
+* Actualización de estado
+
+Humano = supervisión, no ejecución.
+
+---
+
+## 🧬 Pilar 3 — Contratos Cognitivos
+
+Introducción de **Data + Behavior Contracts**:
+
+* Slugs canónicos
+* Room types normalizados
+* Estados comerciales finitos
+* Reglas de transición explícitas
+
+Objetivo:
+
+* Evitar ambigüedad
+* Facilitar IA confiable
+* Permitir escalar equipos y modelos
+
+---
+
+## 🤖 Pilar 4 — IA como Operador Asistido
+
+Rol de la IA en v3.0:
+
+* No inventa
+* No ejecuta sin permiso
+* Prioriza, alerta, sugiere
+
+Ejemplos:
+
+* "Esta reserva está a punto de vencer"
+* "Este hotel está generando más demanda que oferta"
+
+---
+
+## 🧭 Pilar 5 — Documentación Viva
+
+Principio:
+
+> Si no está documentado, no existe.
+
+Práctica:
+
+* Cada versión menor actualiza `docs/`
+* Este archivo evoluciona con el sistema
+* GitHub = memoria institucional
+
+---
+
+## 📈 Resultado Esperado
+
+Con v3.0:
+
+* Menos decisiones manuales
+* Menos errores humanos
+* Mayor velocidad comercial
+* Escalabilidad real
+
+---
+
+## 🏁 Estado del Documento
+
+* Tipo: Documentación viva
+* Versión: v3.0 (inicial)
+* Se actualiza con el sistema
+
+---
+
+**Aliun Travel**
+Arquitectura Cognitiva & Operacional
+# 🧬 Aliun Travel — Evolución Lógica v3.0 (Documentación Viva)
+
+> Este documento describe la **evolución cognitiva y técnica** del sistema Aliun Travel.
+> No es un roadmap rígido: es una **documentación viva**, versionada junto al sistema.
+
+---
+
+## 📌 Estado Base (v2.6 — Producción)
+
+**Condición:** Sistema operativo con ventas reales.
+
+Capacidades confirmadas:
+
+* Booking Engine v1.0 certificado
+* Admin Industrial v2.6
+* Realtime Supabase activo
+* Ingesta idempotente (n8n + SQL)
+* Multimedia y ventas en producción
+* Unicidad semántica y relacional verificada
+
+Limitación natural:
+
+* El sistema **informa**, pero aún no **prioriza ni guía**.
+
+---
+
+## 🚀 Salto Conceptual — v3.0
+
+### Definición
+
+**v3.0 = Sistema Cognitivo Operacional**
+
+El objetivo no es agregar features, sino **reducir carga mental humana**.
+
+> En v3.0 el sistema no solo muestra datos:
+> **dice qué hacer ahora y por qué**.
+
+---
+
+## 🧠 Pilar 1 — Dashboard Cognitivo
+
+Evolución:
+
+* v2.6: KPIs descriptivos
+* v3.0: KPIs prescriptivos
+
+Nuevas capacidades:
+
+* Estados operativos globales:
+
+  * Idle
+  * Ingesta
+  * Actividad Comercial
+  * Riesgo
+  * Escala
+
+* Bloque "Acción Recomendada":
+
+  * "Hay 3 reservas pendientes de pago > 24h"
+  * "Hotel con alta demanda sin tarifas futuras"
+
+---
+
+## 🔁 Pilar 2 — Automatización de Cierre
+
+Evolución del pipeline:
+
+v2.6:
+Cotización → Pendiente de Pago → Acción humana
+
+v3.0:
+Cotización → Pago detectado → Voucher → Seguimiento
+
+Automatismos:
+
+* Detección de pago
+* Generación automática de PDF
+* Notificación cliente
+* Actualización de estado
+
+Humano = supervisión, no ejecución.
+
+---
+
+## 🧬 Pilar 3 — Contratos Cognitivos
+
+Introducción de **Data + Behavior Contracts**:
+
+* Slugs canónicos
+* Room types normalizados
+* Estados comerciales finitos
+* Reglas de transición explícitas
+
+Objetivo:
+
+* Evitar ambigüedad
+* Facilitar IA confiable
+* Permitir escalar equipos y modelos
+
+---
+
+## 🤖 Pilar 4 — IA como Operador Asistido
+
+Rol de la IA en v3.0:
+
+* No inventa
+* No ejecuta sin permiso
+* Prioriza, alerta, sugiere
+
+Ejemplos:
+
+* "Esta reserva está a punto de vencer"
+* "Este hotel está generando más demanda que oferta"
+
+---
+
+## 🧭 Pilar 5 — Documentación Viva
+
+Principio:
+
+> Si no está documentado, no existe.
+
+Práctica:
+
+* Cada versión menor actualiza `docs/`
+* Este archivo evoluciona con el sistema
+* GitHub = memoria institucional
+
+---
+
+## 📈 Resultado Esperado
+
+Con v3.0:
+
+* Menos decisiones manuales
+* Menos errores humanos
+* Mayor velocidad comercial
+* Escalabilidad real
+
+---
+
+## 🏁 Estado del Documento
+
+* Tipo: Documentación viva
+* Versión: v3.0 (inicial)
+* Se actualiza con el sistema
+
+---
+
+**Aliun Travel**
+Arquitectura Cognitiva & Operacional
+
