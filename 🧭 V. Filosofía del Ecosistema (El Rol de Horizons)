@@ -1,0 +1,130 @@
+🏛️ Guía Técnica: SSOT Multimedia v6.5 (Fix de Doble Escritura)
+
+Estado: 🟢 PRODUCCIÓN OPERATIVA
+
+Versión: 6.5.1
+
+Objetivo: Resolver el "Split-Brain" entre public.hotels y public.hotels_master mediante una arquitectura de Espejo Dual.
+
+🧭 V. Filosofía del Ecosistema (El Rol de Horizons)
+
+Para mantener la integridad industrial, el equipo debe entender la jerarquía del sistema:
+
+La Bóveda (Supabase): Es la Fuente Única de Verdad (SSOT). Si no está en hotel_media o en las tablas físicas, no existe.
+
+El Conserje (Horizons / n8n): Horizons es el asistente técnico. Su función es "conectar cables", mover datos de un punto A a un punto B y validar que la conexión sea exitosa. No toma decisiones sobre el diseño, solo asegura la fluidez del dato.
+
+La Vitrina (Web/Admin): Es el reflejo visual de los espejos JSONB (gallery_data, hero_video). Su única misión es mostrar la data con la mayor velocidad posible (Realtime).
+
+El Motor de Reservas: Es el destino final del dato sincronizado, donde el inventario se convierte en transacciones.
+
+🔍 I. Protocolo de Diagnóstico de Bóveda
+
+Antes de cualquier intervención, debemos identificar dónde está leyendo el Admin y dónde estamos escribiendo nosotros.
+
+✅ Prueba 1: Localización de Identidad
+
+Determina si el hotel existe en una o ambas tablas core.
+
+select 'hotels' as src, id, slug from public.hotels where id = '709aba58-ec3e-4840-80a3-b801ea7dc736'
+union all
+select 'hotels_master' as src, id, slug from public.hotels_master where id = '709aba58-ec3e-4840-80a3-b801ea7dc736';
+
+
+✅ Prueba 2: Verificación de Columnas Espejo
+
+select table_name, column_name, data_type 
+from information_schema.columns 
+where table_schema='public'
+  and table_name in ('hotels','hotels_master')
+  and column_name in ('gallery_data','hero_video') 
+order by table_name, column_name;
+
+
+🛠️ II. Implementación del Fix: Espejo en Dual-Mode
+
+1. Asegurar Columnas Espejo en ambas tablas
+
+alter table public.hotels
+  add column if not exists gallery_data jsonb not null default '[]'::jsonb,
+  add column if not exists hero_video jsonb not null default '{}'::jsonb;
+
+alter table public.hotels_master
+  add column if not exists gallery_data jsonb not null default '[]'::jsonb,
+  add column if not exists hero_video jsonb not null default '{}'::jsonb;
+
+
+2. Función de Reconstrucción de Espejo (Doble Escritura)
+
+create or replace function public.sync_hotel_media_mirror_dual(p_hotel_id uuid)
+returns void language plpgsql security definer set search_path = public as $$
+declare
+  v_gallery jsonb;
+  v_video jsonb;
+begin
+  -- GALERÍA (Esquema certificado)
+  select coalesce(
+    jsonb_agg(
+      jsonb_build_object(
+        'id', m.id::text,
+        'title', coalesce(m.title, ''),
+        'image', coalesce(m.public_url, '')
+      ) order by m.sort_order, m.created_at, m.id
+    ), '[]'::jsonb
+  ) into v_gallery
+  from public.hotel_media m
+  where m.hotel_id = p_hotel_id and m.scope = 'gallery' and m.is_active = true;
+
+  -- VIDEO HERO (Objeto único)
+  select coalesce((
+    select jsonb_build_object(
+      'youtube_id', m.youtube_id,
+      'title', coalesce(m.title,''),
+      'is_active', true
+    )
+    from public.hotel_media m
+    where m.hotel_id = p_hotel_id and m.scope = 'video' and m.is_active = true
+    limit 1
+  ), '{}'::jsonb) into v_video;
+
+  -- EJECUCIÓN DEL ESPEJO DUAL
+  update public.hotels set gallery_data = v_gallery, hero_video = v_video where id = p_hotel_id;
+  update public.hotels_master set gallery_data = v_gallery, hero_video = v_video where id = p_hotel_id;
+end;
+$$;
+
+
+3. Trigger de Activación Automática
+
+create or replace function public.trg_sync_hotel_media_mirror_dual()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  perform public.sync_hotel_media_mirror_dual(coalesce(new.hotel_id, old.hotel_id));
+  return coalesce(new, old);
+end;
+$$;
+
+drop trigger if exists trigger_sync_hotel_media_to_hotels on public.hotel_media;
+create trigger trigger_sync_hotel_media_to_hotels
+after insert or update or delete on public.hotel_media
+for each row execute function public.trg_sync_hotel_media_mirror_dual();
+
+
+📡 III. Protocolo Operativo Horizons (n8n)
+
+Fase 1: Activación de Galería
+
+Acción: Insertar en hotel_media. El trigger hace el resto.
+
+Validación: select count(*) > 0 from public.hotel_media where hotel_id = $1 and scope = 'gallery';
+
+✅ IV. Verificación Final (QA)
+
+select 'hotels' src, id, jsonb_array_length(gallery_data) as gallery_len, hero_video 
+from public.hotels where id = '709aba58-ec3e-4840-80a3-b801ea7dc736'
+union all
+select 'hotels_master' src, id, jsonb_array_length(gallery_data), hero_video 
+from public.hotels_master where id = '709aba58-ec3e-4840-80a3-b801ea7dc736';
+
+
+Nota estratégica: Este modo de doble escritura es una medida de contingencia para evitar el tiempo de inactividad mientras se consolida la UI hacia una sola tabla core.
