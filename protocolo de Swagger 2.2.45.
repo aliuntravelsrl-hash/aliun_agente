@@ -1,0 +1,111 @@
+🏛️ Constitución Técnica Aliun Travel v6.5
+
+Estado: 🟢 PRODUCCIÓN OPERATIVA (Bóveda Blindada)
+
+Versión: 6.5.4 (Actualizado: Ecosistema Integral & Lógica Industrial)
+
+🧭 I. La Filosofía del Ecosistema (El Rol de Horizons)
+
+La Bóveda (Supabase): Fuente Única de Verdad (SSOT). Integridad ACID vía UUID.
+
+El Conserje (Horizons / n8n): Conecta cables, valida persistencia e inyecta datos masivos.
+
+El Nervio Óptico (Realtime): Sincronización en <240ms. Badge "Cloud Sync" en estado SUBSCRIBED.
+
+La Vitrina (Web Pública): Reflejo innegociable de la Bóveda en 10 secciones estandarizadas.
+
+🏛️ II. La Bóveda de Datos (Estructura Supabase)
+
+El núcleo del sistema garantiza la integridad de la información mediante tablas interconectadas:
+
+public.hotels_master: Inventario maestro y objeto rooms_data (JSONB).
+
+public.rooms: Fuente de verdad para categorías, capacidades y amenidades.
+
+public.rates: Contrato de Tarifas. Prohibido el hardcoding de precios.
+
+public.seasons: Calendario operativo (Alta, Baja, Especial).
+
+public.quotations / public.bookings: Gestión de flujo de reserva y pending_validation.
+
+⚙️ III. Motor de Reservas (Lógica Industrial)
+
+El Hotel Booking Engine opera bajo reglas de solo lectura y precisión matemática:
+
+Fórmula Industrial de Cálculo: Importe Total = días * ((adultos * tarifa_adulto) + (niños * tarifa_niño))
+
+Swagger Codegen v2.2.45: Única versión certificada para generar BookingsClient.ts. Garantiza compatibilidad total con el mapeo JSONB (guest_data y pricing).
+
+Lógica de Pago: Registro mandatorio en public.payments (PayPal, Stripe, Crédito).
+
+🚀 IV. Ingestión y Automatización
+
+Pipeline n8n: "Brazo Ejecutor" para cargas masivas anuales. Realiza limpieza transaccional (Borrar -> Crear).
+
+IA Engine Ingestor: Normalización de servicios y multimedia desde fuentes oficiales a JSONB.
+
+Servidor MCP (aliun-mcp.service): Persistente 24/7. Generación de Facturas y Vouchers PDF con ITBIS 0%.
+
+🖼️ V. La Vitrina Innegociable (Estructura Web)
+
+Toda interfaz pública debe respetar estrictamente este orden de 10 secciones:
+
+Header | 2. Hero (Video) | 3. Booking | 4. About | 5. Gastronomía | 6. Servicios | 7. Habitaciones | 8. Políticas | 9. Galería | 10. Ubicación.
+
+🛠️ VI. Fix de Doble Escritura (Sincronización de Multimedia)
+
+Resuelve el "Split-Brain" entre hotels y hotels_master para asegurar que el Admin y el Motor vean la misma imagen.
+
+1. Función de Reconstrucción de Espejo Dual
+
+create or replace function public.sync_hotel_media_mirror_dual(p_hotel_id uuid)
+returns void language plpgsql security definer set search_path = public as $$
+declare
+  v_gallery jsonb;
+  v_video jsonb;
+begin
+  -- GALERÍA (Esquema certificado)
+  select coalesce(
+    jsonb_agg(
+      jsonb_build_object(
+        'id', m.id::text,
+        'title', coalesce(m.title, ''),
+        'image', coalesce(m.public_url, '')
+      ) order by m.sort_order, m.created_at, m.id
+    ), '[]'::jsonb
+  ) into v_gallery
+  from public.hotel_media m
+  where m.hotel_id = p_hotel_id and m.scope = 'gallery' and m.is_active = true;
+
+  -- VIDEO HERO (Objeto único)
+  select coalesce((
+    select jsonb_build_object(
+      'youtube_id', m.youtube_id,
+      'title', coalesce(m.title,''),
+      'is_active', true
+    )
+    from public.hotel_media m
+    where m.hotel_id = p_hotel_id and m.scope = 'video' and m.is_active = true
+    limit 1
+  ), '{}'::jsonb) into v_video;
+
+  update public.hotels set gallery_data = v_gallery, hero_video = v_video where id = p_hotel_id;
+  update public.hotels_master set gallery_data = v_gallery, hero_video = v_video where id = p_hotel_id;
+end;
+$$;
+
+
+✅ VII. Verificación Forense (QA)
+
+Para confirmar que el motor de reservas y la vitrina están sincronizados:
+
+-- Verificar qué ve el Motor de Reservas y la Galería
+select 
+  name, 
+  jsonb_array_length(gallery_data) as gallery_count,
+  (rooms_data->'rooms') as motor_inventory
+from public.hotels_master 
+where slug = 'occidental-punta-cana';
+
+
+Nota estratégica: La infraestructura 6.5.4 ya no es solo multimedia; es el chasis completo de Aliun Travel. Cualquier desviación de este estándar rompe la sincronización industrial.
