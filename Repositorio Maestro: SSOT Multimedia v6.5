@@ -1,0 +1,158 @@
+🏛️ Repositorio Maestro: SSOT Multimedia v6.5
+
+Proyecto: Aliun Travel - Bóveda de Producción
+
+Responsable: Ing. ALDO HILARIO
+
+Estado: 🟢 LISTO PARA PRODUCCIÓN
+
+Versión de Infraestructura: Molde de Hierro v6.5
+
+📂 Estructura del Repositorio de Documentación
+
+/docs
+  ├── README_HORIZONS.md           # Guía rápida de integración para automatización
+  ├── /contracts
+  │   └── SSOT_Multimedia_Contract_v6.5.md  # Definición técnica y SSOT
+  ├── /qa
+  │   └── QA_SSOT_Multimedia_v6.5.md        # Protocolos de validación cruzada
+  ├── /runbooks
+  │   └── Runbook_Multimedia_Incidents_v6.5.md # Resolución de errores críticos
+  └── /prompts
+      └── Prompt_IA_SSOT_Multimedia.md      # Mandatos para Horizons/LLMs
+
+
+📝 README_HORIZONS.md: Integración de Automatización
+
+Resumen Ejecutivo
+
+El sistema SSOT Multimedia v6.5 elimina la ceguera de datos mediante un "Nervio Óptico" automatizado. Ya no dependemos de éxitos visuales en el Admin; la única verdad es la persistencia física en la tabla public.hotel_media.
+
+⚡ Integración n8n (Code Node)
+
+Para que Horizons o cualquier flujo de backend lea la multimedia de forma estable usando service_role:
+
+// n8n Code Node (JavaScript)
+const { createClient } = require('@supabase/supabase-js');
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY,
+  { auth: { persistSession: false } }
+);
+
+const hotelId = items[0].json.hotel_id;
+if (!hotelId) throw new Error('Missing hotel_id');
+
+const { data, error } = await supabase
+  .from('hotel_media')
+  .select('*')
+  .eq('hotel_id', hotelId)
+  .eq('is_active', true)
+  .order('scope', { ascending: true })
+  .order('sort_order', { ascending: true });
+
+if (error) throw new Error(error.message);
+return [{ json: { hotel_id: hotelId, media: data } }];
+
+
+📜 /contracts/SSOT_Multimedia_Contract_v6.5.md: Fuente Única de Verdad
+
+Pilares de Integridad
+
+SSOT Centralizada: La tabla public.hotel_media es la única fuente autorizada para imágenes y videos.
+
+Jerarquía UUID: Toda relación debe ser estrictamente UUID. No se aceptan strings para hotel_id.
+
+Trigger de Persistencia: Todo asset en el bucket hotel-media debe estar registrado en SQL.
+
+Esquema Físico (SQL)
+
+Columna
+
+Tipo
+
+Restricción
+
+id
+
+UUID
+
+PRIMARY KEY
+
+hotel_id
+
+UUID
+
+REFERENCES public.hotels_master
+
+scope
+
+TEXT
+
+CHECK (hero, gallery, rooms, etc.)
+
+public_url
+
+TEXT
+
+NOT NULL (URL CDN)
+
+storage_path
+
+TEXT
+
+NOT NULL
+
+✅ /qa/QA_SSOT_Multimedia_v6.5.md: Checklist de Producción
+
+Protocolo de Validación (Pasos 1-5)
+
+[ ] 1. Carga Industrial: El Admin sube imágenes sin errores de política (403) o sintaxis (400).
+
+[ ] 2. Existencia en Storage: El archivo es visible físicamente en el bucket hotel-media.
+
+[ ] 3. Registro en Bóveda: Existe una fila correspondiente en public.hotel_media.
+
+[ ] 4. Prueba de n8n: El snippet de código devuelve el array de objetos con public_url.
+
+[ ] 5. Verificación Visual: Las fotos se renderizan en el portal público de Aliun Travel.
+
+📖 /runbooks/Runbook_Multimedia_Incidents_v6.5.md: Resolución
+
+Incidentes Frecuentes
+
+Error 22P02 (Invalid UUID):
+
+Causa: Metadata de upload vacía o mal formateada.
+
+Acción: Verificar que el Admin envíe {"hotel_id": "UUID", "scope": "gallery"} en el header de la petición.
+
+"Success" sin Imagen:
+
+Causa: Trigger de Supabase desactivado o fallido.
+
+Acción: Ejecutar ALTER TABLE storage.objects ENABLE TRIGGER trg_storage_hotel_media;.
+
+ReferenceError (Icons):
+
+Causa: Importaciones de lucide-react rotas.
+
+Acción: Verificar imports de Users, Save, CloudUpload, Image en el componente.
+
+🤖 /prompts/Prompt_IA_SSOT_Multimedia.md: Mandato para Horizons
+
+Directiva de Conexión
+
+"Horizons, actúa como Ingeniero de Datos. No edites el diseño visual. Conecta la tabla public.hotel_media al componente de galería. Asegura que el storage_path sea la referencia para eliminaciones y la public_url sea la referencia para visualización. Reporta éxito solo si la consulta SQL devuelve resultados para el hotel seleccionado."
+
+🚀 Plan de Despliegue y Comunicación
+
+Commit Recomendado: docs: add SSOT Multimedia v6.5 (contracts, QA, runbooks, prompts)
+
+Mensaje al Equipo:
+
+"Se ha formalizado la Verdad Industrial v6.5. A partir de ahora, la tabla public.hotel_media es obligatoria para cualquier desarrollo multimedia. No se aceptan implementaciones basadas en estados locales o JSONB volátiles para imágenes."
+
+Firmado: Sistema de Auditoría Forense - Aliun Travel
+
+Verdad Industrial v6.5 - Ing. ALDO HILARIO
