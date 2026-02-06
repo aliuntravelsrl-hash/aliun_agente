@@ -1,0 +1,141 @@
+# README_OPS — Operación Real del Sistema (Producción)
+
+> **Este documento describe CÓMO OPERA REALMENTE el sistema en producción.**
+> No sustituye el README general. Lo complementa.
+> Aquí se documentan **límites, responsabilidades y flujos reales**, para evitar errores operativos.
+
+---
+
+## 1. Principio Rector (Molde de Hierro)
+
+El sistema opera bajo un modelo **SSOT + Espejos JSONB**.
+
+* **SSOT (Single Source of Truth)**: tablas relacionales en Supabase
+* **Espejos**: columnas JSONB optimizadas para lectura rápida
+* **Triggers** sincronizan SSOT → Espejo
+
+👉 **Si el trigger no corre, el Admin queda ciego** (aunque los datos existan).
+
+---
+
+## 2. Roles y Responsabilidades (NO negociable)
+
+| Rol                | Qué puede hacer                                 | Qué NO puede hacer                |
+| ------------------ | ----------------------------------------------- | --------------------------------- |
+| **Admin (UI)**     | Ver datos, editar tarifas y temporadas          | Subir imágenes, editar multimedia |
+| **Horizons (n8n)** | Escribir SSOT, subir multimedia, cargas masivas | UI, edición manual                |
+| **Web**            | Leer JSONB                                      | Escribir datos                    |
+
+---
+
+## 3. Fuente de Verdad por Dominio
+
+| Dominio                                | SSOT                                    | Quién escribe   | Quién lee   |
+| -------------------------------------- | --------------------------------------- | --------------- | ----------- |
+| Multimedia (galería, servicios, video) | `public.hotel_media`                    | Horizons        | Admin + Web |
+| Habitaciones                           | `public.rooms`                          | Horizons        | Admin + Web |
+| Servicios/Amenidades                   | `public.hotel_media (scope='services')` | Horizons        | Admin + Web |
+| Video Hero                             | `public.hotel_media (scope='video')`    | Horizons        | Admin + Web |
+| Tarifas                                | `public.rates`                          | Admin (puntual) | Web         |
+| Temporadas                             | `public.seasons`                        | Admin           | Web         |
+
+---
+
+## 4. Estado REAL del Admin
+
+### El Admin es **READ-ONLY para Multimedia**
+
+* ❌ No existen componentes de upload
+* ❌ No existen modales de edición multimedia
+* ❌ No hay botones de guardar imágenes
+
+Esto es **intencional**, no un bug.
+
+👉 Toda multimedia se gestiona **fuera del Admin**, vía Horizons.
+
+---
+
+## 5. Flujo REAL de Multimedia (Galería, Servicios, Video)
+
+```
+Proveedor / Carpeta / Drive
+        ↓
+Horizons (n8n)
+        ↓
+Supabase Storage (bucket hotel-media)
+        ↓
+public.hotel_media   ← SSOT
+        ↓ (triggers)
+hotels_master.gallery_data / services_data / hero_video
+        ↓
+Admin (visor) + Web
+```
+
+---
+
+## 6. Triggers Críticos del Sistema
+
+| Trigger                              | Función      | Propósito                         |
+| ------------------------------------ | ------------ | --------------------------------- |
+| `trigger_sync_hotel_media_to_hotels` | trigger-only | Cebar galería / servicios / video |
+| `trigger_sync_rooms`                 | trigger-only | Cebar rooms_data                  |
+
+⚠️ **Estas funciones NO se llaman manualmente.**
+Se disparan únicamente por `INSERT / UPDATE / DELETE`.
+
+---
+
+## 7. Recuperación POST-ROLLBACK (Obligatorio)
+
+Después de cualquier rollback o restore:
+
+### 7.1 Re-cebar espejos (manual)
+
+```sql
+update public.rooms set updated_at = now();
+update public.hotel_media set updated_at = now();
+```
+
+Esto dispara los triggers y **devuelve visión al Admin y Web**.
+
+---
+
+## 8. Tarifas y Temporadas (EXCEPCIÓN)
+
+### ✅ Permitido en Admin
+
+* Crear / editar temporadas
+* Ajustes puntuales de tarifas
+
+### ❌ No permitido en Admin
+
+* Cargas masivas
+* Tarifas multi-año
+* Importaciones CSV grandes
+
+👉 Cargas industriales → **Horizons**
+
+---
+
+## 9. Errores ESPERADOS (NO son bugs)
+
+| Error                                    | Significado          |
+| ---------------------------------------- | -------------------- |
+| No aparecen botones de upload            | Admin es visor       |
+| JSONB vacío con SSOT lleno               | Trigger no disparado |
+| `function can only be called as trigger` | Función trigger-only |
+
+---
+
+## 10. Regla Final de Operación
+
+> **Si no existe fila en SSOT, no existe dato.**
+> **Si el espejo no se cebó, el Admin no ve nada.**
+
+Este documento es la **fuente de verdad operativa** para producción.
+
+---
+
+**Archivo:** `README_OPS.md`
+**Ámbito:** Producción / Operaciones
+**Complementa:** README general del repositorio
