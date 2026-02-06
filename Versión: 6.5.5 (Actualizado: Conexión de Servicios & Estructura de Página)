@@ -1,0 +1,132 @@
+🏛️ Constitución Técnica Aliun Travel v6.5
+
+Estado: 🟢 PRODUCCIÓN OPERATIVA (Bóveda Blindada)
+
+Versión: 6.5.5 (Actualizado: Conexión de Servicios & Estructura de Página)
+
+🧭 I. La Filosofía del Ecosistema (El Rol de Horizons)
+
+La Bóveda (Supabase): Fuente Única de Verdad (SSOT). Integridad ACID vía UUID.
+
+El Conserje (Horizons / n8n): Conecta cables, valida persistencia e inyecta datos masivos.
+
+El Nervio Óptico (Realtime): Sincronización en <240ms. Badge "Cloud Sync" en estado SUBSCRIBED.
+
+La Vitrina (Web Pública): Reflejo innegociable de la Bóveda en 10 secciones estandarizadas.
+
+🛠️ II. Fix de Doble Escritura (Sincronización de Multimedia y Servicios)
+
+Resuelve el "Split-Brain" asegurando que el Admin y la Web vean los mismos datos de Galería, Video y Servicios.
+
+1. Asegurar Columnas Espejo (Incluye Services)
+
+alter table public.hotels
+  add column if not exists gallery_data jsonb not null default '[]'::jsonb,
+  add column if not exists hero_video jsonb not null default '{}'::jsonb,
+  add column if not exists services_data jsonb not null default '[]'::jsonb;
+
+alter table public.hotels_master
+  add column if not exists gallery_data jsonb not null default '[]'::jsonb,
+  add column if not exists hero_video jsonb not null default '{}'::jsonb,
+  add column if not exists services_data jsonb not null default '[]'::jsonb;
+
+
+2. Función de Reconstrucción de Espejo Dual (v6.5.5)
+
+create or replace function public.sync_hotel_media_mirror_dual(p_hotel_id uuid)
+returns void language plpgsql security definer set search_path = public as $$
+declare
+  v_gallery jsonb;
+  v_video jsonb;
+  v_services jsonb;
+begin
+  -- 1. GALERÍA
+  select coalesce(jsonb_agg(jsonb_build_object(
+    'id', m.id::text, 'title', coalesce(m.title, ''), 'image', coalesce(m.public_url, '')
+  ) order by m.sort_order, m.created_at), '[]'::jsonb) into v_gallery
+  from public.hotel_media m where m.hotel_id = p_hotel_id and m.scope = 'gallery' and m.is_active = true;
+
+  -- 2. VIDEO HERO
+  select coalesce((select jsonb_build_object(
+    'youtube_id', m.youtube_id, 'title', coalesce(m.title,''), 'is_active', true
+  ) from public.hotel_media m where m.hotel_id = p_hotel_id and m.scope = 'video' and m.is_active = true limit 1), '{}'::jsonb) into v_video;
+
+  -- 3. SERVICIOS (Nuevo Espejo)
+  select coalesce(jsonb_agg(jsonb_build_object(
+    'title', m.title, 'icon', coalesce(m.public_url, ''), 'is_active', true
+  ) order by m.sort_order), '[]'::jsonb) into v_services
+  from public.hotel_media m where m.hotel_id = p_hotel_id and m.scope = 'services' and m.is_active = true;
+
+  -- ACTUALIZACIÓN DUAL
+  update public.hotels set gallery_data = v_gallery, hero_video = v_video, services_data = v_services where id = p_hotel_id;
+  update public.hotels_master set gallery_data = v_gallery, hero_video = v_video, services_data = v_services where id = p_hotel_id;
+end;
+$$;
+
+
+📡 VIII. Protocolo Horizons (n8n): Conexión de Servicios
+
+1. Resolución de Identidad por Slug
+
+Horizons debe obtener el hotel_id canónico antes de cualquier operación:
+
+// n8n Code Node
+const slug = items[0].json.slug;
+let { data: hm } = await supabase.from('hotels_master').select('id').eq('slug', slug).single();
+if (!hm) {
+  let { data: h } = await supabase.from('hotels').select('id').eq('slug', slug).single();
+  hm = h;
+}
+items[0].json.hotel_id = hm.id;
+
+
+2. Activación de Sección en page_structure
+
+La sección Services solo es visible si está habilitada en el JSONB de estructura:
+
+update public.hotels_master 
+set page_structure = jsonb_set(
+  page_structure, 
+  '{sections}', 
+  (
+    select jsonb_agg(
+      case when value->>'id' = 'services' 
+      then value || '{"enabled": true}'::jsonb 
+      else value end
+    )
+    from jsonb_array_elements(page_structure->'sections')
+  )
+)
+where id = 'UUID_DEL_HOTEL';
+
+
+3. Inyección en SSOT (hotel_media)
+
+Horizons inyecta las amenidades con scope='services'. El trigger automático actualizará el espejo services_data.
+
+const payload = [
+  { hotel_id: hotelId, scope: 'services', title: 'Wi-Fi Gratis', public_url: '[https://cdn.aliun.travel/icons/wifi.svg](https://cdn.aliun.travel/icons/wifi.svg)', sort_order: 1 },
+  { hotel_id: hotelId, scope: 'services', title: 'Piscina Infinity', public_url: '[https://cdn.aliun.travel/icons/pool.svg](https://cdn.aliun.travel/icons/pool.svg)', sort_order: 2 }
+];
+await supabase.from('hotel_media').insert(payload);
+
+
+4. Verificación de Éxito (Anti-Fantasma)
+
+Horizons solo reporta SUCCESS si:
+
+page_structure tiene services.enabled = true.
+
+public.hotel_media tiene al menos 1 registro activo de tipo services.
+
+✅ VII. Verificación Forense (QA)
+
+select 
+  name, 
+  (page_structure->'sections') @> '[{"id": "services", "enabled": true}]' as section_ready,
+  jsonb_array_length(services_data) as services_count
+from public.hotels_master 
+where slug = 'bahia-principe-fantasia-punta-cana';
+
+
+Firmado: Auditoría de Sistemas Aliun Travel v6.5.5
