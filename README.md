@@ -1,2 +1,69 @@
 # aliun_agente
 "Datos JSON de productos y políticas de Aliun Travel para ingestión RAG.", Ayuda a la organización.
+---
+
+## 📊 Datos Actualizados para Validación en Perplexity (v6.1)
+
+Usar esta sección para validar si la infraestructura **real** coincide con el diseño industrial del Molde de Hierro.
+
+1. **URL del Proyecto Supabase**  
+   - `https://oyihiyivdhfxpyiwnmqk.supabase.co`
+
+2. **Motor de API (Componente Crítico)**  
+   - El sistema debe operar con una instancia compilada de **Swagger Codegen v2.2.45** (o superior)  
+     para la generación de los clientes de reserva en `BookingsClient.ts`.  
+   - Cualquier actualización de versión debe ser documentada explícitamente en este README.
+
+3. **Esquema de Tarifas**  
+   - La tabla `public.rates` debe estar vinculada a `public.rooms` mediante la columna `room_id`.  
+   - Debe contener, como mínimo, las columnas:  
+     - `base_price_adult`  
+     - `base_price_child`
+
+4. **Estructura de 10 Secciones (Front Web)**  
+   El orden de renderizado es **innegociable**:
+
+   1. Header  
+   2. Hero (video)  
+   3. Booking  
+   4. About  
+   5. Gastronomía  
+   6. Servicios  
+   7. Habitaciones  
+   8. Políticas  
+   9. Galería  
+   10. Ubicación  
+
+5. **Lógica de Pago**  
+   - El motor debe soportar bifurcación de flujo hacia **PayPal**.  
+   - Todos los registros de reservas deben iniciar en el estado:  
+     - `pending_validation`
+
+6. **Fórmula de Cálculo de Importe**  
+   - Fórmula oficial:  
+     `días * ((adultos * tarifa_adulto) + (niños * tarifa_niño))`
+
+---
+
+## 🏛️ Instrucción para Horizons (Refuerzo del Mandato)
+
+Para evitar desviaciones en la implementación del cliente de API, toda comunicación técnica con Horizons debe incluir esta instrucción:
+
+> “Horizon, el ‘Pegamento’ técnico debe usar la instancia compilada de **Swagger Codegen 2.2.45**.  
+> Asegura que el mapeo JSONB de los objetos `guest_data` y `pricing` en el cliente de API sea 100%  
+> compatible con esta versión para evitar errores de backtracking o malformación de archivos  
+> en el generador online.”
+
+### 🔍 Importancia de este Componente
+
+- **Seguridad Industrial:**  
+  Aunque existen referencias a versiones posteriores con parches de seguridad (Regex ReDoS, etc.),  
+  la versión **2.2.45** es la certificada en la infraestructura actual.  
+  Ningún cambio de versión es válido sin actualizar primero este README.
+
+- **Sistema Nervioso del Motor de Reservas:**  
+  Este componente funciona como transmisor entre el **Hotel Booking Form** y la tabla  
+  `public.quotations` en Supabase, transportando los objetos `guest_data` y `pricing` en formato JSONB.
+
+**Veredicto del Arquitecto:**  
+Al registrar aquí esta información, este README actúa como **Certificado de Verdad** y evita que Horizons declare integraciones basadas en versiones de software que no existen en la infraestructura real.
