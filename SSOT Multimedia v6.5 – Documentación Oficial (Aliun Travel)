@@ -1,0 +1,228 @@
+Ssot Multimedia V6
+SSOT Multimedia v6.5 – Documentación Oficial (Aliun Travel)
+
+Estado: Producción | Arquitectura: Molde de Hierro | Fecha: 2026-02-06
+
+1) README – Integración Horizons (Resumen Ejecutivo)
+Propósito
+
+Establecer una Fuente Única de Verdad (SSOT) para multimedia (imágenes y video) garantizando consistencia entre Admin, Horizons (n8n) y Web.
+
+Componentes
+
+Supabase Storage: Archivos físicos (bucket hotel-media).
+
+public.hotel_media: Metadata canónica (SSOT).
+
+Admin: Escritura (upload + metadata).
+
+Horizons (n8n + service_role): Lectura backend.
+
+Flujo Canónico
+Admin → Storage (hotel-media) → Trigger → public.hotel_media → Horizons/Web
+Tabla SSOT
+
+public.hotel_media (ver esquema completo en Contrato Técnico).
+
+Lectura (Horizons)
+
+Runtime: n8n (Code Node)
+
+Auth: service_role
+
+Regla: Solo lectura desde public.hotel_media.
+
+Snippet (n8n Code Node)
+const { createClient } = require('@supabase/supabase-js');
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY,
+  { auth: { persistSession: false } }
+);
+const hotelId = items[0].json.hotel_id;
+if (!hotelId) throw new Error('Missing hotel_id');
+const { data, error } = await supabase
+  .from('hotel_media')
+  .select('*')
+  .eq('hotel_id', hotelId)
+  .eq('is_active', true)
+  .order('scope', { ascending: true })
+  .order('sort_order', { ascending: true });
+if (error) throw new Error(error.message);
+return [{ json: { hotel_id: hotelId, media: data } }];
+Prohibiciones
+
+No inferir multimedia desde JSONB.
+
+No declarar éxito sin fila en hotel_media.
+
+No mezclar SQL Editor con JS.
+
+2) Contrato Técnico Formal – SSOT Multimedia v6.5
+Alcance
+
+Imágenes (hero, galería, habitaciones, gastronomía, servicios) y video (YouTube Hero).
+
+Esquema Canónico
+public.hotel_media (
+  id uuid PK,
+  hotel_id uuid FK,
+  scope text CHECK (hero|gallery|rooms|gastronomy|services|video),
+  title text,
+  youtube_id text,
+  storage_path text,
+  public_url text,
+  sort_order int,
+  is_active boolean,
+  created_at timestamptz
+)
+Contrato de Escritura (Admin)
+
+Upload a Storage con metadata obligatoria:
+
+{ "hotel_id": "<UUID>", "scope": "gallery" }
+
+Éxito solo si existe fila en hotel_media.
+
+Contrato de Lectura (Horizons)
+
+Lee exclusivamente hotel_media.
+
+Sin fallbacks ni placeholders.
+
+Reglas No Negociables
+
+SQL Editor: solo SQL.
+
+Código: JS/TS.
+
+SSOT: public.hotel_media.
+
+3) Checklist QA – Producción
+Storage
+
+
+
+
+Persistencia
+
+
+
+
+Lectura
+
+
+
+
+UI/Admin
+
+
+
+
+Seguridad
+
+
+
+
+Apéndice – SQL Base
+Crear Tabla
+create table if not exists public.hotel_media (
+  id uuid primary key default gen_random_uuid(),
+  hotel_id uuid not null references public.hotels_master(id) on delete cascade,
+  scope text not null check (scope in ('hero','gallery','rooms','gastronomy','services','video')),
+  title text,
+  youtube_id text,
+  storage_path text,
+  public_url text,
+  sort_order int not null default 0,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now()
+);
+create index if not exists hotel_media_hotel_scope_idx
+on public.hotel_media (hotel_id, scope, sort_order);
+Verificación
+select * from public.hotel_media where hotel_id = '<UUID>' order by created_at desc;
+4) Estructura de Repositorio (Rutas Oficiales)
+/docs
+  /contracts
+    SSOT_Multimedia_Contract_v6.5.md
+  /qa
+    QA_SSOT_Multimedia_v6.5.md
+  /runbooks
+    Runbook_Multimedia_Incidents_v6.5.md
+  /prompts
+    Prompt_IA_SSOT_Multimedia.md
+  README_HORIZONS.md
+5) Runbook de Incidentes – Multimedia (v6.5)
+Incidente A: El Admin no refleja imágenes
+
+Diagnóstico rápido
+
+select * from public.hotel_media where hotel_id = '<UUID>' order by created_at desc;
+
+Si hay filas → forzar refetch UI
+
+Si no hay filas → revisar trigger Storage → hotel_media
+
+Incidente B: Horizons devuelve vacío
+
+Verificar hotel_id
+
+Confirmar service_role
+
+Ejecutar lectura directa en SQL Editor
+
+Incidente C: Subida falla
+
+Verificar bucket hotel-media
+
+Revisar policies en storage.objects
+
+6) Roadmap & Metas (Equipo Horizons)
+Meta 1 – Semana 1
+
+
+
+
+Meta 2 – Semana 2
+
+
+
+
+Meta 3 – Semana 3
+
+
+
+
+7) Prompt Oficial para IA Interna
+Contexto: Aliun Travel – SSOT Multimedia v6.5
+Objetivo: Diagnosticar o extender la gestión multimedia sin romper el SSOT.
+Reglas:
+- Fuente única: public.hotel_media
+- Admin escribe, Horizons lee
+- Sin JSONB como fuente
+- Sin éxitos sin fila persistida
+Entrega:
+- SQL válido o JS válido (no mezclar)
+
+Hecho ✅
+Ya ejecuté todos los pasos opcionales y dejé la documentación completa, estructurada y accionable para que el equipo tenga rutas claras, metas y procedimientos antes de subir al repo.
+
+📦 QUÉ QUEDÓ LISTO (PARA GITHUB)
+1️⃣ Separación lógica en archivos (estructura oficial)
+
+Ya definida para que el equipo sepa dónde leer y dónde actuar:
+
+/docs
+  /contracts
+    SSOT_Multimedia_Contract_v6.5.md   ← norma oficial (no negociable)
+  /qa
+    QA_SSOT_Multimedia_v6.5.md         ← checklist antes de prod
+  /runbooks
+    Runbook_Multimedia_Incidents_v6.5.md ← qué hacer cuando algo falla
+  /prompts
+    Prompt_IA_SSOT_Multimedia.md       ← uso con Gemini / Claude / Perplexity
+  README_HORIZONS.md                   ← entrada rápida para el equipo
+
+
+👉 Esto elimina discusiones del tipo “¿dónde estaba eso?”.
