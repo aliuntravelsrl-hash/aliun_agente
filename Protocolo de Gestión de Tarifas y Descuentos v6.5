@@ -1,0 +1,67 @@
+💰 Protocolo de Gestión de Tarifas y Descuentos v6.5
+
+Proyecto: Aliun Travel - Bóveda de Producción
+
+Concepto: Ingesta Global Anual + Ajustes Mensuales/Trimestrales
+
+Estado: 🔵 DISEÑO DE LÓGICA COMERCIAL
+
+🏗️ 1. Arquitectura de Dos Capas
+
+Para permitir que el Admin descuente un 5% sobre la tarifa global de $250 USD, el sistema operará bajo dos capas de datos:
+
+Capa A: Ingesta Global (Anual)
+
+Origen: Contratos directos de la propiedad.
+
+Frecuencia: 1 vez al año.
+
+Tabla: public.rates (Campos adult_rate, child_rate).
+
+Función: Es el precio de referencia (MSRP).
+
+Capa B: Ajuste Táctico (Mensual/Trimestral)
+
+Origen: Admin de Aliun Travel.
+
+Frecuencia: Bajo demanda (Ajustes de mercado).
+
+Campo: discount_percentage (Nuevo campo propuesto).
+
+Lógica: El motor de reservas calculará: Precio Final = Tarifa Global * (1 - Descuento/100).
+
+⚙️ 2. Flujo de Edición en el Admin
+
+Cuando el Director decida motivar a los clientes:
+
+Selección: Se elige el hotel y el rango de fechas (Temporada).
+
+Modificación: En el campo "Ajuste Comercial", se ingresa el valor (ej: 5).
+
+Persistencia: Supabase actualiza el campo discount_percentage en la tabla rates.
+
+Reflejo en Vitrina: El motor de reservas mostrará el precio original tachado y el nuevo precio con el 5% aplicado, aumentando la conversión psicológica.
+
+📊 3. Ejemplo de Cálculo Industrial
+
+Tarifa Global Inyectada: $250.00 USD.
+
+Descuento Admin: 5%.
+
+Impuestos (ITBIS): 0% (Según configuración de Bóveda).
+
+Precio en Pantalla: $237.50 USD.
+
+🚀 4. Mandato para el Motor de Reservas
+
+El motor debe priorizar siempre la búsqueda por:
+
+hotel_id + fecha_viaje.
+
+Verificar si existe un discount_percentage > 0.
+
+Aplicar la reducción antes de generar el Total_Quote.
+
+Nota Técnica: Esta estructura permite "apagar" los descuentos al final del trimestre simplemente reseteando el campo a 0, volviendo instantáneamente a la tarifa global de la propiedad.
+
+Verdad Industrial v6.5 - Estrategia Comercial Aliun Travel
