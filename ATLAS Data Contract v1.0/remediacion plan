@@ -1,0 +1,161 @@
+ATLAS Data Contract v1.0
+
+Estado: MANDATORIO
+
+Última Revisión: 9 de Febrero, 2026
+
+Sistema: Ecosistema ATLAS (Supabase + n8n + AI)
+
+1. Arquitectura de Identidad (The Golden ID)
+
+Para resolver los errores de integridad referencial, se establece la jerarquía de identificadores:
+
+hotel_id (PRIMARY KEY):
+
+Tipo: text (en tabla hoteles) / uuid (en tablas relacionadas como rooms).
+
+Nota Técnica: Existe una discrepancia actual en los tipos de datos. El contrato exige que para nuevas tablas se use uuid. En la tabla maestro hoteles, el campo hotel_id actúa como el "Human Readable ID" (ej: H-SRN-01).
+
+slug (UNIQUE INDEX):
+
+Tipo: text.
+
+Uso: Exclusivo para rutas de URL y SEO. No debe usarse para JOINs en procesos críticos de reserva.
+
+2. Esquema de Datos Core (Single Source of Truth)
+
+2.1 Tabla: hoteles
+
+Fuente principal de metadatos de propiedades.
+
+hotel_id: Identificador único (Text).
+
+slug: URL friendly name (Unique).
+
+nombre / name: Nombre comercial.
+
+zona: Ubicación regional (Punta Cana, Cap Cana, etc.).
+
+check_in_time / check_out_time: Formato text (HH:mm).
+
+2.2 Tabla: rooms
+
+id: uuid (Primary Key).
+
+hotel_id: uuid (Foreign Key -> hoteles).
+
+base_price: double precision.
+
+capacity_adults / capacity_kids: integer.
+
+2.3 Tabla: bookings
+
+id: uuid.
+
+hotel_id: uuid (Vínculo obligatorio).
+
+status: text (Valores: pending, confirmed, cancelled).
+
+total_amount: numeric (Precisión financiera).
+
+3. Protocolo de Validación "Check 41" (1/8)
+
+Un hotel solo se considera "READY FOR SALES" si pasa los 8 requisitos de integridad. Actualmente, el sistema marca FAILED si no cumple el 100%.
+
+Check
+
+Requisito
+
+Columna/Tabla de Verificación
+
+1
+
+Galería
+
+Presencia en hotel_media
+
+2
+
+Servicios
+
+Al menos 1 registro en hotel_services
+
+3
+
+Habitaciones
+
+Al menos 1 registro en rooms
+
+4
+
+Tarifas
+
+Existencia de rates vinculadas a las habitaciones
+
+5
+
+Temporadas
+
+Definición en seasons
+
+6
+
+Restaurantes
+
+Mapeo en hotel_restaurants
+
+7
+
+Políticas
+
+politica_cancelacion no nula en hoteles
+
+8
+
+Ubicación
+
+Coordenadas o zona validada
+
+4. Reglas de Automatización (n8n & AI)
+
+Búsqueda por Alias: Si la IA recibe un nombre parcial (ej: "Bahia Principe"), debe consultar la tabla hotel_aliases antes de fallar.
+
+Logs de Error: Toda falla en el flujo de reserva debe registrarse en automation_logs con el step y payload_in para auditoría inmediata.
+
+5. Estándares Técnicos
+
+Timestamp: Siempre timestamp with time zone (UTC).
+
+Monedas: Siempre numeric.
+
+Booleanos: Usar is_active para borrado lógico.
+
+6. Plan de Remediación (Ruta al 8/8)
+
+Objetivo: Mover los 41 hoteles del estado FAILED (1/8) a SUCCESS (8/8) en un ciclo de 72 horas.
+
+Fase A: Normalización de Relaciones (Inmediato)
+
+Mapeo de IDs: Ejecutar script de SQL para asegurar que cada hotel_id (Text) tenga un UUID correspondiente en la tabla de sistema para evitar fallos de Foreign Key en rooms y rates.
+
+Deduplicación: Eliminar slugs duplicados detectados en el reporte (ej: "TRS Turquesa").
+
+Fase B: Inyección Masiva de Contenido (vía n8n + AI)
+
+Sprint de Media: Activar el workflow ATLAS-Scraper-Gallery para poblar la tabla hotel_media usando los nombres oficiales de los 41 hoteles.
+
+Servicios y Restaurantes: Usar la IA para categorizar y llenar hotel_services y hotel_restaurants basándose en las descripciones actuales de la tabla hoteles.
+
+Fase C: Estructura Comercial (Crítico para Reservas)
+
+Temporadas (Seasons): Crear un set de temporadas estándar 2026 para todos los hoteles que tengan 0/8 en este check.
+
+Tarifario Base: Inyectar en rates los precios base desde tariffs_master para activar el motor de cotización.
+
+Fase D: Validación Final
+
+Re-ejecución del script Validation-41.
+
+Los hoteles que alcancen 8/8 se activan automáticamente en el canal de ventas (is_active = true).
+
+Aprobado por: Director de ATLAS
