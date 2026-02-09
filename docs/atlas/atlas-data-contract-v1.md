@@ -316,6 +316,132 @@ CREATE TABLE atlas_block_inventory (
 ```
 
 ### B. Código de Referencia
+ATLAS Data Contract v1.0
+
+Versión: 1.0
+
+Fecha: 9 de Febrero, 2026
+
+Estado: Activo / En Transición
+
+Director Responsable: Director General de ATLAS
+
+1. Filosofía de Identidad
+
+El sistema ATLAS evoluciona de un modelo basado en texto (slug) a un modelo basado en identificadores únicos globales (hotel_id). Esto permite mayor flexibilidad en SEO y evita que errores de redacción rompan la integridad de las reservas.
+
+1.1 El "Golden ID"
+
+hotel_id: Es el identificador único e inmutable de un hotel. Debe ser tratado como la PRIMARY KEY en todas las operaciones.
+
+slug: Se mantiene como un identificador único orientado a URL (SEO), pero no es la clave primaria.
+
+2. Definición de Entidades Core
+
+2.1 Tabla: hoteles (Maestro)
+
+Columna
+
+Tipo
+
+Restricción
+
+Descripción
+
+hotel_id
+
+TEXT / UUID
+
+PRIMARY KEY
+
+ID único (ej: H-BVP-01)
+
+slug
+
+TEXT
+
+UNIQUE, NOT NULL
+
+Identificador amigable para URL
+
+nombre
+
+TEXT
+
+NOT NULL
+
+Nombre comercial oficial
+
+cadena
+
+TEXT
+
+-
+
+Nombre de la cadena hotelera
+
+zona
+
+TEXT
+
+-
+
+Ubicación geográfica (ej: 'Punta Cana')
+
+2.2 Tabla: hotel_aliases (Traductor de IA)
+
+Esta tabla es el puente entre el lenguaje natural de los clientes (n8n/Chat) y la base de datos.
+
+Propósito: Permitir que "serenade pc" o "bahia principe" mapeen correctamente a un único hotel_id.
+
+Campos: id, hotel_id (FK), alias (Unique).
+
+3. Integridad Referencial (Dependencias)
+
+Cualquier tabla que contenga datos relacionados con un hotel debe usar hotel_id como clave foránea (FOREIGN KEY).
+
+hoteles_bloqueos: Debe referenciar a hotel_id.
+
+sales_offers: Debe referenciar a hotel_id.
+
+bookings: El punto de unión entre el usuario y el inventario.
+
+4. Estándares de Datos
+
+4.1 Formatos
+
+Slugs: Siempre en minúsculas, sin espacios, guiones para separar palabras (ej: bahia-principe-fantasia).
+
+Fechas: Formato ISO 8601 (YYYY-MM-DD) para compatibilidad con n8n y Postgres.
+
+Monedas: numeric (nunca float) para evitar errores de redondeo en transacciones.
+
+4.2 Estados de Validación (Validación 41)
+
+Para que un hotel se considere "OPERATIVO", debe cumplir el Check de Integridad 1/8:
+
+Galería de fotos presente.
+
+Al menos 1 servicio listado.
+
+Al menos 1 tipo de habitación definido.
+
+Tarifas cargadas.
+
+Temporadas definidas.
+
+Restaurantes cargados.
+
+Políticas de cancelación claras.
+
+Ubicación geográfica validada.
+
+5. Control de Cambios en Base de Datos
+
+Cualquier cambio estructural que intente eliminar o modificar una Primary Key debe considerar la cláusula CASCADE y la recreación inmediata de las relaciones para evitar huérfanos en sales_offers.
+
+Este contrato es vinculante para todos los flujos de n8n y componentes de la UI de ATLAS.
+
 
 Ver archivo adjunto: `paste.txt` (código JavaScript original)
 
