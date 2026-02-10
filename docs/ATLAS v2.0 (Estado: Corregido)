@@ -1,0 +1,54 @@
+🎖️ Resumen Ejecutivo: ATLAS v2.0 (Estado: Corregido)
+
+Este documento consolida la visión técnica tras la auditoría v11.2 y la migración del Súper Agente.
+
+1. El Motor de Conocimiento (RAG Híbrido)
+
+Se ha resuelto la discrepancia de datos. El sistema ya no busca en tablas inexistentes.
+
+Fuente de Verdad: hotels_master (Metadata) + rag_context_cache (Vectores).
+
+Mecanismo de Búsqueda: Combinación de búsqueda semántica (OpenAI Embeddings) y búsqueda por palabras clave (pg_trgm similarity).
+
+Actualización: Workflow de reindexación automática para mantener el cache RAG sincronizado con cambios en precios o amenidades.
+
+2. El Cerebro del Agente (ai_command_sessions)
+
+Siguiendo la Opción 3, la inteligencia está desacoplada pero vinculada:
+
+chat_sessions: Gestiona la conexión con el usuario (WhatsApp/Telegram via ManyChat/Kommo).
+
+ai_command_sessions: Almacena el "razonamiento" del agente, el modo (autónomo/asistido) y el contexto técnico de la IA.
+
+ai_command_actions: Log detallado de cada herramienta usada por el agente (ej. "Consultó disponibilidad", "Generó Cotización").
+
+3. Capa de Ofertas (Quotations v2)
+
+Las ofertas ya no son solo registros de texto; son objetos inteligentes:
+
+Extensión de quotations: Se agregaron campos para check_in, check_out, total_amount, y un ai_reasoning que explica por qué se recomendó esa habitación específica.
+
+Confianza: Cada oferta generada por el agente incluye un confidence_score.
+
+4. Plan de Despliegue (Deployment Strategy)
+
+El proceso está estandarizado en 8 pasos críticos, con un tiempo estimado de 35 minutos:
+
+Diagnóstico SQL: Validación de integridad de datos.
+
+Poblamiento RAG: Carga masiva de descripciones de hoteles.
+
+Batch Embeddings: Generación de vectores para búsqueda semántica.
+
+Migración Súper Agente: Actualización del schema de base de datos.
+
+Workflow v11.2: Activación del motor lógico en n8n.
+
+5. Auditoría de Seguridad y Costos
+
+Token Usage: Seguimiento integrado por sesión para control de costos de OpenAI/Gemini.
+
+Human-in-the-loop: Capacidad de escalar a soporte humano mediante el estado de la sesión si el agente detecta frustración o complejidad alta.
+
+Estado del Sistema: LISTO PARA MIGRACIÓN.
+Próximo Hito: Ejecución del Bloque 0 de migration_super_agente_v2.sql.
