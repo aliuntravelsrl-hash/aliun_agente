@@ -1,0 +1,40 @@
+Protocolo de Modificación de Tarifas v2.2.45
+
+Integridad del Sistema: 5d047213b36725841e6a16e05d9eb687c75c9fd4
+
+1. Cumplimiento Swagger 2.2.45
+
+Toda interacción con el endpoint de tarifas debe cumplir con la definición de objeto RateUpdate:
+
+{
+  "integrity_hash": "5d047213b36725841e6a16e05d9eb687c75c9fd4",
+  "payload": {
+    "rate_id": "uuid",
+    "base_price": "decimal",
+    "adjustments": {
+      "adult_factor": "float",
+      "child_factor": "float"
+    },
+    "metadata": {
+      "source": "admin_panel",
+      "protocol_version": "2.2.45"
+    }
+  }
+}
+
+
+2. Fórmula Industrial de Cálculo
+
+Al modificar el price_per_night, el sistema debe ejecutar la función de armonización:
+
+Validación de Hash: Verificar que el motor de cálculo esté activo.
+
+Desglose: Calcular (Base * Multiplicador de Temporada) + Impuestos Legales.
+
+Sincronización: Actualizar tablas dependientes de disponibilidad y preventa.
+
+3. Restricciones de Seguridad
+
+No se permiten actualizaciones parciales que rompan la integridad referencial.
+
+El log de cambios debe incluir el estado anterior y posterior del objeto serializado.
