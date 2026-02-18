@@ -297,3 +297,445 @@ Agente IA conectado a adquisición real.
 Base de datos enriquecida.
 
 Primer ciclo completo optimizable
+
+🔴 ALIUN TRAVEL
+AI REVENUE & GROWTH ENGINE
+Master Execution Blueprint v1.0
+1️⃣ VISIÓN ESTRATÉGICA
+
+Aliun Travel no es solo una agencia.
+Es una infraestructura comercial automatizada con:
+
+2 Motores de Reserva
+
+1 Vendedor IA
+
+1 Motor de Contenido
+
+1 Sistema de Ads
+
+1 Núcleo de Datos (Supabase)
+
+1 Orquestador (n8n)
+
+Objetivo final:
+
+Convertir inventario (115 hoteles) en flujo de ingresos medible y escalable.
+
+2️⃣ ARQUITECTURA GLOBAL
+CAPA 1 — INVENTARIO (SSOT)
+
+hotels_master
+
+rooms
+
+rates
+
+seasons
+
+CAPA 2 — EJECUCIÓN COMERCIAL
+
+Motor 1: RAG + Cotización Dinámica
+
+Motor 2: Sales Offers (Disponibilidad Garantizada)
+
+Flujo F (Pago → PDF → Email)
+
+CAPA 3 — INTELIGENCIA
+
+Lead Scoring
+
+Hotel Priority Score
+
+Margin Tracking
+
+Conversion Tracking
+
+CAPA 4 — ADQUISICIÓN
+
+Google Ads (intención alta)
+
+Meta Retargeting
+
+Base de datos propia
+
+CAPA 5 — AUTOMATIZACIÓN
+
+n8n Workflows
+
+Redis
+
+Error Handler
+
+Cron Jobs
+
+3️⃣ ROADMAP GLOBAL (FASES)
+🔵 FASE 1 — ESTABILIZACIÓN & MEDICIÓN
+
+Duración: 3–4 semanas
+
+Objetivo:
+Medir dinero real y priorizar hoteles.
+
+Bloques:
+
+Rewire workflows a SSOT
+
+Activar Error Handler
+
+Confirmar tabla reservas
+
+Crear Hotel KPI Engine
+
+Conectar Google Ads básico
+
+Resultado:
+Sistema medible.
+
+🟣 FASE 2 — OPTIMIZACIÓN INTELIGENTE
+
+Duración: 4 semanas
+
+Objetivo:
+Aumentar conversión y margen.
+
+Bloques:
+
+Lead Scoring automático
+
+Follow-up inteligente
+
+Prioridad dinámica hotel
+
+Retargeting segmentado
+
+Comparador Motor 1 vs Motor 2
+
+Resultado:
+Sistema optimizable.
+
+🟡 FASE 3 — CRECIMIENTO AUTÓNOMO
+
+Duración: 4–6 semanas
+
+Objetivo:
+Escalar sin aumentar complejidad humana.
+
+Bloques:
+
+Auto-adjust Ads (ROAS driven)
+
+Content Engine priorizado por margen
+
+Activación completa Sales Offers
+
+Sistema de referidos
+
+Reporte financiero consolidado
+
+Resultado:
+Sistema escalable.
+
+4️⃣ MATRIZ DE PRIORIDADES (PARA NO PERDER FOCO)
+Nivel	Acción	Urgencia
+CRÍTICO	Activar Error Handler	Inmediato
+CRÍTICO	Confirmar reservas reales	Inmediato
+ALTO	KPI Engine	Semana 1
+ALTO	Google Ads intención	Semana 2
+MEDIO	Lead Scoring	Fase 2
+MEDIO	Sales Offers completo	Fase 3
+5️⃣ FLUJO COMPLETO IDEAL (FINAL)
+
+Google Ads
+↓
+Landing
+↓
+Lead
+↓
+Lead Scoring
+↓
+Vendedor IA
+↓
+Cotización
+↓
+Pago
+↓
+Flujo F
+↓
+Reserva Confirmada
+↓
+KPI Engine
+↓
+Hotel Priority Score
+↓
+Ads / Contenido optimizado
+
+Ciclo cerrado.
+
+6️⃣ MÉTRICAS RECTORAS (NO NEGOCIABLES)
+
+Revenue por hotel
+
+Margen por hotel
+
+Conversión Lead → Reserva
+
+CAC
+
+ROAS
+
+Tiempo promedio cierre
+
+No likes.
+No views.
+No vanity metrics.
+
+7️⃣ RIESGOS CONTROLADOS
+
+Workflows inactivos
+
+Tabla reservas no consolidada
+
+Inventario Motor 2 sin bloqueo real
+
+Ads sin tracking server-side
+
+Cada uno tiene bloque asignado.
+
+8️⃣ CRONOGRAMA GENERAL REALISTA
+
+Semana 1:
+Infraestructura + Confirmación reservas
+
+Semana 2:
+KPI + Activación Ads
+
+Semana 3:
+Medición + Ajuste prioridad hoteles
+
+Semana 4:
+Optimización inicial
+
+Mes 2:
+Lead Scoring + Follow-up automático
+
+Mes 3:
+Motor 2 + Growth Loop completo
+
+9️⃣ ESTADO ACTUAL (REAL)
+
+✔ SSOT confirmado
+✔ 116 hoteles cargados
+✔ Motor 1 estructurado
+✔ Motor 2 estructuralmente listo
+✔ Vendedor IA v2.0 operativo
+⚠ Workflows inactivos
+⚠ KPI no implementado
+⚠ Tabla reservas no confirmada
+
+🔟 DECISIÓN ESTRATÉGICA
+
+Hoy NO estamos construyendo features.
+
+Estamos construyendo:
+
+Infraestructura Comercial Medible.
+
+🎯 Próximo Movimiento
+
+Ahora que tienes el Plan Maestro completo:
+
+Puedes:
+
+Copiar esto a GitHub como AI_REVENUE_MASTER_PLAN.md
+
+Pasarlo a Claude para refinamiento operativo
+
+Diseñar el roadmap visual
+
+Y cuando vuelvas a la etapa de auditoría de tablas,
+ya sabremos exactamente qué necesitamos encontrar.🔴 ALIUN TRAVEL
+AI REVENUE ENGINE — ARQUITECTURA GLOBAL v1.0
+🧠 VISIÓN GENERAL (Vista Macro)
+
+
+                ┌──────────────────────────┐
+                │      CAPA 4              │
+                │      ADQUISICIÓN         │
+                │ Google Ads / Meta Ads    │
+                └────────────┬─────────────┘
+                             │
+                             ▼
+                ┌──────────────────────────┐
+                │      CAPA 5              │
+                │  LANDING + TRACKING      │
+                │ Pixel + Webhook          │
+                └────────────┬─────────────┘
+                             │
+                             ▼
+                ┌──────────────────────────┐
+                │      CAPA 3              │
+                │   LEAD & SCORING         │
+                │ Supabase + n8n           │
+                └────────────┬─────────────┘
+                             │
+                             ▼
+        ┌──────────────────────────────────────────┐
+        │            CAPA 2                        │
+        │         EJECUCIÓN COMERCIAL              │
+        │                                          │
+        │  Motor 1 → RAG + Cotización Dinámica    │
+        │  Motor 2 → Sales Offers (Garantizado)   │
+        │  Flujo F → Pago → PDF → Email           │
+        └────────────┬─────────────────────────────┘
+                     │
+                     ▼
+        ┌──────────────────────────────────────────┐
+        │            CAPA 1                        │
+        │        INVENTARIO (SSOT)                 │
+        │ hotels_master → rooms → rates → seasons  │
+        └──────────────────────────────────────────┘
+                     │
+                     ▼
+        ┌──────────────────────────────────────────┐
+        │            CAPA 6                        │
+        │     INTELIGENCIA & MÉTRICAS              │
+        │ KPI Engine → Priority Score → ROAS      │
+        └──────────────────────────────────────────┘
+🔷 DIAGRAMA DETALLADO POR COMPONENTE
+1️⃣ INVENTARIO (SSOT)
+2️⃣ MOTOR 1 — RESERVA DINÁMICA
+Cliente (WhatsApp / Web)
+        │
+        ▼
+Vendedor IA (Gemini + Tools RPC)
+        │
+        ├── RAG Search
+        ├── Validar ocupación
+        ├── Calcular precio
+        │
+        ▼
+Cotización
+        │
+        ▼
+Pago confirmado
+        │
+        ▼
+Flujo F
+  ├─ Generar PDF (MCP)
+  ├─ Subir a Storage
+  ├─ Enviar Email
+  └─ Log Supabase
+
+3️⃣ MOTOR 2 — SALES OFFERS (CODEN 2.2.4.5)
+Proveedor
+   │
+   ▼
+Telegram Trigger
+   │
+   ▼
+external_offers (pending)
+   │
+   ▼
+Aprobación Director
+   │
+   ▼
+status = approved
+   │
+   ▼
+Publicado en Horizons
+   │
+   ▼
+Vendedor IA puede ofrecer disponibilidad garantizada
+
+4️⃣ ORQUESTACIÓN (n8n)
+Error Handler  ← siempre activo
+
+Workflows:
+- Atlas Inventory
+- Flujo F
+- External Offers
+- KPI Engine
+
+
+Regla:
+Ningún workflow en producción sin Error Handler.
+
+5️⃣ MÉTRICAS Y PRIORIDAD
+Reservas Confirmadas
+        │
+        ▼
+hotel_kpi_daily
+        │
+        ▼
+vw_hotel_kpi_30d
+        │
+        ▼
+priority_score
+        │
+        ├── Ads priorizados
+        └── Content Engine priorizado
+
+🔶 DIAGRAMA DE FLUJO COMPLETO (CICLO CERRADO)
+Ads
+  │
+  ▼
+Lead
+  │
+  ▼
+IA Vendedor
+  │
+  ▼
+Reserva
+  │
+  ▼
+Ingreso Real
+  │
+  ▼
+KPI Engine
+  │
+  ▼
+Hotel Prioritario
+  │
+  ├── Más Ads
+  └── Más Contenido
+
+
+Ciclo cerrado.
+Sistema autorreforzado.
+
+🔷 INFRAESTRUCTURA TÉCNICA
+Frontend: Horizons
+Backend: Supabase (PostgreSQL + RLS + Storage)
+Orquestador: n8n
+IA: Google Gemini
+Embeddings: OpenAI
+Cache: Redis
+PDF: MCP Server
+Infra: Docker + EasyPanel
+
+🏛 ESTRUCTURA EN CAPAS (RESUMEN EJECUTIVO)
+Capa	Función
+1	Inventario
+2	Ejecución reservas
+3	Lead & Scoring
+4	Adquisición
+5	Automatización
+6	Inteligencia & Optimización
+🎯 RESULTADO FINAL DEL SISTEMA
+
+Un ecosistema donde:
+
+El inventario alimenta la IA.
+
+La IA genera reservas.
+
+Las reservas generan métricas.
+
+Las métricas priorizan inversión.
+
+La inversión genera más reservas.
+
+Arquitectura cerrada.
+Sin improvisación.
+Sin dependencia de intuición.
