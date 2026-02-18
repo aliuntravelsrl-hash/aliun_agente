@@ -1,0 +1,72 @@
+Prototipo de Landing Page: Motor Atlas (High-Conversion Offer Page)
+Referencia Estratégica: Implementación de patrones de diseño de e-commerce de alto rendimiento (Referencia visual: Nike.com PDP) para la venta de paquetes turísticos.
+
+1. Propósito Estratégico y Coherencia Cognitiva
+Este prototipo define la estructura frontend, el estilo visual y la jerarquía de información para las páginas de oferta individuales del Motor Atlas.
+
+El objetivo comercial no es solo mostrar un destino, sino acelerar la decisión de compra. Para lograr esto, hemos adaptado la psicología de venta de productos físicos premium (donde el producto es el héroe) a la venta de experiencias de viaje.
+
+Principios de Diseño:
+
+La Oferta es el Héroe: El destino y el paquete ocupan el centro del escenario visual.
+
+Fricción Cero: La interfaz transaccional (selección de fechas, pasajeros y botón de compra) debe estar siempre visible y accesible, sin importar dónde se encuentre el usuario en la página.
+
+Minimalismo Premium: Uso intencional del espacio en blanco y tipografía limpia para transmitir confianza y exclusividad.
+
+2. Decisiones Clave de Arquitectura Visual
+Este prototipo implementa directivas específicas aprobadas por la dirección para alinearse con la arquitectura comercial del sistema.
+
+2.1. Estructura de Pantalla Dividida (Split Screen - Desktop)
+En pantallas grandes, la página se divide en dos columnas con propósitos distintos:
+
+Columna Izquierda (60% - Inmersiva): Dedicada exclusivamente a la venta emocional. Una galería vertical de alta resolución que sumerge al usuario en la experiencia del destino.
+
+Columna Derecha (40% - Transaccional): Dedicada a la venta racional. Contiene los datos duros (precio, qué incluye) y los mecanismos de acción (selectores del motor).
+
+2.2. Barra Lateral Fija (Sticky Sidebar)
+Elemento Crítico. La columna derecha transaccional se mantiene fija ("sticky") mientras el usuario hace scroll por la galería de imágenes. Esto asegura que el Call to Action (CTA) principal y los selectores de reserva nunca salgan del campo visual del usuario.
+
+2.3. Jerarquía Visual de Ventas
+El orden de los elementos en la barra lateral está diseñado para seguir un embudo de conversión rápido:
+
+Título (H1): Qué es.
+
+Precio (Destacado): Cuánto cuesta (el ancla de valor).
+
+Inputs del Motor: Selectores simples (Fechas/Pax) para personalizar la oferta.
+
+CTA Principal (Botón Negro): Acción de conversión inmediata ("Ver Disponibilidad").
+
+2.4. Adaptabilidad Móvil (Mobile-First)
+El diseño colapsa elegantemente en una sola columna. La galería se convierte en un carrusel horizontal superior, y la información transaccional se apila debajo.
+
+Nota de Implementación Móvil: Se sugiere fuertemente que el botón de CTA principal se fije en la parte inferior de la pantalla (sticky bottom bar) en dispositivos móviles para garantizar el acceso constante a la acción de compra.
+
+3. Requisitos de Integración (Checklist para Desarrollo)
+Este prototipo es HTML/CSS estático. Para llevarlo a producción dentro del ecosistema Aliun/Atlas, se requieren los siguientes pasos:
+
+Navbar Global
+[ ] Acción Inmediata: Actualizar el enlace del navbar en el sitio principal de Destinos / Paquetes a Ofertas.
+
+Conexión de Datos (Data Binding)
+El equipo de frontend debe conectar este template a los endpoints del backend de Atlas (Supabase/n8n):
+
+[ ] Contenido Dinámico: Reemplazar los textos estáticos (Título, Subtítulo, Precio) por variables provenientes de la base de datos de la oferta seleccionada.
+
+[ ] Galería Dinámica: Cargar las URLs de las imágenes correspondientes al destino desde la BD.
+
+[ ] Selectores Funcionales:
+
+[ ] El selector de "Fechas" debe conectarse a un datepicker real que refleje la disponibilidad real del paquete.
+
+[ ] El selector de "Viajeros" debe actualizar el precio dinámicamente si aplica.
+
+[ ] Acción del CTA: El botón principal debe enviar la data seleccionada (ID_Oferta + Fechas + Pax) al flujo de checkout o cotización del sistema Atlas.
+
+4. Estructura de Archivos del Prototipo
+El prototipo consta de un único archivo HTML que contiene el CSS necesario en el <head> para facilitar la portabilidad inicial.
+
+index.html: Contiene la estructura semántica y los estilos críticos. Depende de FontAwesome (vía CDN) para los iconos y de imágenes de placeholder de Unsplash.
+
+Documentación aprobada por la Dirección General - Febrero 2026
