@@ -1,0 +1,299 @@
+🔴 ALIUN TRAVEL SRL
+Proyecto: AI Growth & Revenue Engine
+Documento Oficial de Ejecución – Fase 1
+📌 VISIÓN GENERAL DEL PROYECTO
+
+Objetivo macro:
+
+Construir un ecosistema comercial autónomo que:
+
+Capture demanda cualificada.
+
+Priorice rentabilidad.
+
+Ejecute reservas automáticamente.
+
+Retroalimente inversión publicitaria.
+
+Escale sin aumentar proporcionalmente costos humanos.
+
+Arquitectura central:
+
+Adquisición → Lead Scoring → Agente IA v2.0 → Seguimiento → Métricas → Reinversión
+
+🧭 ESTRUCTURA DE FASES (PANORAMA COMPLETO)
+Fase	Nombre	Duración Estimada	Objetivo
+Fase 1	Comercialización Base	3–4 semanas	Medir y priorizar ingresos
+Fase 2	Optimización Automatizada	4 semanas	Aumentar conversión
+Fase 3	Growth Loop Inteligente	4–6 semanas	Escalamiento autónomo
+🔴 FASE 1 – COMERCIALIZACIÓN BASE
+
+Duración estimada: 21–28 días
+Prioridad: Alta
+Riesgo: Bajo (estructura sobre sistema existente)
+
+🎯 OBJETIVOS DE FASE 1
+
+Implementar Lead Scoring real.
+
+Crear Dashboard de Rentabilidad por Hotel.
+
+Conectar campañas Google Ads al agente.
+
+Medir ciclo completo: Lead → Reserva → Margen.
+
+🗂 ENTREGABLES DE FASE 1
+
+Tabla CRM extendida con scoring.
+
+2 nuevos workflows n8n.
+
+Dashboard financiero en Supabase.
+
+Pixel + tracking conversión implementado.
+
+Reporte ROAS por hotel.
+
+🧩 BLOQUE 1 – LEAD SCORING ENGINE
+
+Tiempo estimado: 5–7 días
+
+Tareas Técnicas
+1. Modificación Supabase
+
+Agregar columnas a tabla leads:
+
+lead_score (int)
+
+lead_temperature (enum)
+
+source_channel (text)
+
+hotel_interest (text)
+
+budget_range (numeric)
+
+travel_window (date range)
+
+2. Lógica de Scoring
+
+Ejemplo base:
+
+Presupuesto definido → +20
+
+Fechas claras → +20
+
+Hotel específico → +15
+
+Más de 2 interacciones → +15
+
+Solicita cotización directa → +30
+
+Score > 70 = Hot
+40–69 = Warm
+< 40 = Cold
+
+3. Workflow n8n
+
+Nuevo flujo:
+
+Trigger:
+
+Nuevo lead o mensaje entrante
+
+Proceso:
+
+Evaluación semántica (Gemini)
+
+Cálculo score
+
+Update Supabase
+
+Si Hot → Notificación Telegram + Prioridad seguimiento
+
+🧩 BLOQUE 2 – DASHBOARD RENTABILIDAD HOTELERA
+
+Tiempo estimado: 5–8 días
+
+Objetivo
+
+Identificar qué hoteles generan:
+
+Más margen
+
+Mejor conversión
+
+Mejor velocidad de cierre
+
+Nueva tabla sugerida:
+
+hotel_performance_metrics
+
+Campos:
+
+hotel_slug
+
+total_leads
+
+total_quotes
+
+total_reservations
+
+margin_average
+
+revenue_total
+
+conversion_rate
+
+closing_time_avg
+
+Query diaria automatizada:
+
+Job CRON en Supabase o n8n:
+
+Calcula métricas
+
+Actualiza tabla
+
+Genera ranking
+
+Resultado:
+
+Top 10 hoteles priorizados para Ads y contenido.
+
+🧩 BLOQUE 3 – CONEXIÓN GOOGLE ADS
+
+Tiempo estimado: 7–10 días
+
+Arquitectura
+
+Google Ads → Landing optimizada → Webhook → Lead Scoring → Agente IA
+
+Configuración mínima viable:
+
+1 campaña por intención alta
+
+5 grupos de anuncios por destino
+
+Conversion API configurada
+
+Evento “Reserva Confirmada” enviado server-side
+
+Métrica crítica:
+
+Costo por Cotización
+Costo por Reserva
+ROAS por hotel
+
+🧩 BLOQUE 4 – TRACKING FINANCIERO COMPLETO
+
+Tiempo estimado: 3–5 días
+
+Agregar en reservas:
+
+acquisition_channel
+
+campaign_id
+
+ad_group_id
+
+cost_per_lead
+
+cost_per_reservation
+
+Esto permite:
+
+ROAS por hotel
+ROAS por canal
+ROAS por campaña
+
+📊 KPI DE VALIDACIÓN FASE 1
+
+Fase 1 se considera exitosa cuando:
+
+100% de leads tienen score.
+
+100% de reservas tienen canal atribuido.
+
+Dashboard muestra ranking dinámico.
+
+Se genera primer reporte ROAS real.
+
+Se identifican 5 hoteles prioritarios.
+
+🗓 CRONOGRAMA PROPUESTO
+
+Semana 1:
+
+Lead Scoring completo.
+
+Testing y ajustes.
+
+Semana 2:
+
+Dashboard hotel performance.
+
+Métricas automáticas.
+
+Semana 3:
+
+Google Ads activado.
+
+Tracking conversión completo.
+
+Semana 4 (opcional buffer):
+
+Optimización inicial.
+
+Ajustes scoring.
+
+🛡 CONTROL DE RIESGO
+
+Riesgo: Sobre ingeniería temprana
+Mitigación: Solo lo mínimo viable funcional.
+
+Riesgo: Tráfico sin conversión
+Mitigación: Palabras clave intención alta únicamente.
+
+Riesgo: Métricas sucias
+Mitigación: Validación manual primeras 10 reservas.
+
+📁 ESTRUCTURA SUGERIDA PARA GITHUB
+
+Repositorio:
+
+aliun-ai-growth-engine
+
+Estructura:
+
+/docs
+
+fase_1_comercializacion.md
+
+arquitectura_general.md
+
+scoring_logic.md
+
+kpis.md
+
+/workflows
+
+lead_scoring_v1.json
+
+hotel_metrics_v1.json
+
+/sql
+
+migration_fase1.sql
+
+🔎 RESULTADO ESPERADO AL FINAL DE FASE 1
+
+Sistema medible.
+
+Prioridad comercial clara.
+
+Agente IA conectado a adquisición real.
+
+Base de datos enriquecida.
+
+Primer ciclo completo optimizable
