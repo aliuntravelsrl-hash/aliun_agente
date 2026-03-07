@@ -1,0 +1,159 @@
+# AI Agent Connector v2.0 — Widget de Kommo para Aliun Travel
+## Guía de Despliegue
+
+---
+
+## CÓMO FUNCIONA (Flujo Completo)
+
+```
+Cliente (WhatsApp/Messenger/IG/TikTok)
+  │
+  ▼
+Kommo recibe mensaje
+  │
+  ▼
+Salesbot se activa (trigger: mensaje entrante)
+  │
+  ▼
+Paso "Widget" → ejecuta widget_request
+  │
+  ▼
+POST a n8n webhook con:
+  {
+    "token": "JWT_TOKEN",
+    "data": {
+      "message": "Hola, quiero una oferta en Punta Cana",
+      "chat_id": "12345",
+      "contact_id": "67890",
+      "lead_id": "41033570",
+      "contact_name": "Juan Pérez",
+      "channel": "whatsapp"
+    },
+    "return_url": "https://aliuntravelsrl.kommo.com/api/v4/salesbot/321/continue/123"
+  }
+  │
+  ▼
+n8n responde 200 OK inmediatamente (< 2 seg)
+  │
+  ▼
+n8n procesa: RAG → Embedding → AI Agent → Tools → Formatear
+  │
+  ▼
+n8n POST a return_url con la respuesta:
+  {
+    "data": { "ai_response": "¡Hola Juan! Tenemos ofertas..." },
+    "execute_handlers": [
+      {
+        "handler": "show",
+        "params": {
+          "type": "text",
+          "value": "¡Hola Juan! Tenemos ofertas increíbles..."
+        }
+      }
+    ]
+  }
+  │
+  ▼
+Kommo muestra la respuesta en el chat del cliente
+(Funciona en TODOS los canales: WhatsApp, Messenger, IG, TikTok, Telegram)
+```
+
+---
+
+## CAMBIOS NECESARIOS EN n8n
+
+### 1. Webhook debe responder INMEDIATO (no responseNode)
+
+Cambiar `01_WEBHOOK_KOMMO`:
+- **responseMode**: de `responseNode` → a `lastNode` o `immediately`
+  (Kommo requiere 200 OK en < 2 segundos)
+
+### 2. Guardar return_url en 01B_EXTRAER_VARIABLES
+
+Agregar al código de `01B_EXTRAER_VARIABLES`:
+```javascript
+var returnUrl = body.return_url || '';
+```
+Y incluirlo en el return:
+```javascript
+return {
+  ...
+  return_url: returnUrl,
+  ...
+};
+```
+
+### 3. Nuevo nodo final: POST a return_url
+
+Reemplazar o agregar después de la cadena de humanización un nodo HTTP Request:
+- **Method**: POST
+- **URL**: `{{ $('01B_EXTRAER_VARIABLES').item.json.return_url }}`
+- **Auth**: Header Auth (Kommo credential)
+- **Body**:
+```json
+{
+  "data": {
+    "ai_response": "{{ $json.respuesta_limpia }}"
+  },
+  "execute_handlers": [
+    {
+      "handler": "show",
+      "params": {
+        "type": "text",
+        "value": "{{ $json.respuesta_limpia }}"
+      }
+    }
+  ]
+}
+```
+
+### 4. Nodo 23_RESPONSE_SUCCESS ya NO se necesita
+
+El `respondToWebhook` se reemplaza por el POST a `return_url`.
+El webhook ahora responde 200 automáticamente.
+
+---
+
+## ARCHIVOS DEL WIDGET
+
+```
+kommo-widget/
+├── manifest.json      ← Definición del widget
+├── script.js          ← Lógica del Salesbot handler
+└── i18n/
+    └── es.json        ← Traducciones español
+```
+
+---
+
+## PASOS DE INSTALACIÓN
+
+### En Kommo:
+1. Ir a **Configuraciones** → **Integraciones**
+2. Abrir la integración existente (ID: 3472d9cc-87ec-4f49-ac17-fe74f5862e9c)
+3. Subir el widget (ZIP con los 3 archivos)
+4. Ir a **Comunicación** → **Salesbots**
+5. Crear un Salesbot con trigger "Cuando llega un mensaje nuevo"
+6. Agregar paso "Widget" → seleccionar "AI Agent Connector v2.0"
+7. En el campo "URL del Webhook en n8n" poner:
+   `https://n8n-n8n.xaruuo.easypanel.host/webhook/kommo-webhook-v2`
+8. Guardar
+
+### En n8n:
+1. Cambiar `01_WEBHOOK_KOMMO` responseMode a inmediato
+2. Actualizar `01B_EXTRAER_VARIABLES` para capturar `return_url`
+3. Agregar nodo HTTP POST a `return_url` al final del pipeline
+4. Eliminar o desconectar `23_RESPONSE_SUCCESS`
+
+---
+
+## VENTAJAS DE ESTA ARQUITECTURA
+
+- **Multicanal nativo**: Un solo widget funciona para WhatsApp, Messenger,
+  Instagram, TikTok, Telegram, y cualquier canal futuro de Kommo
+- **Humanización compatible**: Los waits y fragmentos funcionan porque
+  n8n tiene todo el tiempo que necesite antes de hacer POST a return_url
+- **ElevenLabs ready**: Se pueden agregar nodos de voz entre el agente
+  y el POST final a return_url
+- **Sin timeout**: Kommo espera indefinidamente el POST a return_url
+  (no hay límite de 2 seg para la respuesta final, solo para el ACK)
